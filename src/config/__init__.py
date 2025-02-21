@@ -4,6 +4,11 @@ class Settings(BaseSettings):
     APP_KEY: str
     APP_SECRET: str
     BASE_URL: str
+    DB_HOST: str
+    DB_PORT: int
+    DB_USERNAME: str
+    DB_PASSWORD: str
+    DB_NAME: str
 
     class Config:
         env_file='.env'
