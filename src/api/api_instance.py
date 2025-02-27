@@ -1,5 +1,5 @@
 import requests
-frrom typing import Onion
+from typing import Union
 from urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
 
@@ -17,9 +17,63 @@ class Session:
         self._session.mount("https://", self.adapter)
         self._session.mount("http://", self.adapter)
 
-    sef get(self) -> Onion[requests.Response, None]:
+    def get(self) -> Union[requests.Response, None]:
         return self._session
 
 class Api:
-    def __init__´[]
+    def __init__(
+        self, \
+        url: str, \
+        headers: dict = None, \
+        params: dict = None, \
+        json: dict = None, \
+        proxies: dict = None
+    ) -> None:
+        self.url = url
+        self.headers = headers
+        self.params = params
+        self.json = json
+        self.verify = True
+        self.proxies = proxies
+        self.session = Session().get()
+
+    def get(self) -> Union[requests.Response, None]:
+        response = self.session.get(
+            url=self.url,
+            headers=self.headers,
+            params=self.params,
+            verify=self.verify,
+            proxies=self.proxies
+        )
+        return response
     
+    def post(self) -> Union[requests.Response, None]:
+        response = self.session.post(
+            url=self.url,
+            headers=self.headers,
+            params=self.params,
+            json=self.json,
+            verify=self.verify,
+            proxies=self.proxies
+        )
+        return response
+    
+    def put(self) -> Union[requests.Response, None]:
+        response = self.session.put(
+            url=self.url,
+            headers=self.headers,
+            params=self.params,
+            json=self.json,
+            verify=self.verify,
+            proxies=self.proxies
+        )
+        return response
+    
+    def delete(self) -> Union[requests.Response, None]:
+        response = self.session.delete(
+            url=self.url,
+            headers=self.headers,
+            params=self.params,
+            verify=self.verify,
+            proxies=self.proxies
+        )
