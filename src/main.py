@@ -1,17 +1,25 @@
-import sys
-import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from config import Settings
-import requests
 import json
+from typing import Optional
+from config import Settings
+
 import pandas as pd
 from sqlalchemy import create_engine
+
 from api import Api
 from endpoints import Endpoints
+
 settings = Settings()
 
 endpoints = Endpoints()
-endpoints = endpoints.get_all()
+#endpoints = endpoints.get_all()
+endpoints = endpoints.get_endpoint(action="ListarDepartamentos")
+#ListarClientes
+#ListarCategorias
+#ListarEmpresas
+#ListarDepartamentos
+#ListarMovimentos
+
+print("ENDPOINTS", endpoints)
 
 base_url = settings.BASE_URL
 app_key = settings.APP_KEY
@@ -33,9 +41,23 @@ def request(resource: str, body: dict, params: dict) -> dict:
         json = response.json()
         return json
     else:
+        print("RESPONSE", response.content)
         raise Exception (f"Error: {response.status_code}")
 
-def get_total_of_pages(resource: str, action: str, params: dict) -> int:
+def get_total_of_pages(
+    resource: str, 
+    action: str, 
+    params: dict,
+    total_of_pages_label: Optional[str],
+    records_label: Optional[str]
+    ) -> int:
+    
+    total_of_pages_label = "total_de_paginas" if total_of_pages_label is None else total_of_pages_label
+    records_label = "registros" if records_label is None else records_label
+    print("total_of_pages_label", total_of_pages_label)
+    print("records_label", records_label)
+    
+    
     payload = {
         "call": action,
         "app_key": app_key,
@@ -43,8 +65,8 @@ def get_total_of_pages(resource: str, action: str, params: dict) -> int:
         "param": [params]
     }
     response = request(resource, payload, params)
-    total_of_pages = response.get("total_de_paginas", 0)
-    records = response.get("total_de_registros", 0)
+    total_of_pages = response.get(total_of_pages_label, 0)
+    records = response.get(records_label, 0)
     print(f"Total of records: {records}")
 
     return total_of_pages
@@ -73,8 +95,18 @@ for endpoint in endpoints:
     action = endpoint.get("action", None)
     params = endpoint.get("params", None)
     data_source = endpoint.get("data_source", None)
+    total_of_pages_label = endpoint.get("total_of_pages_label", None)
+    records_label = endpoint.get("records_label", None)
 
-    total_of_pages = get_total_of_pages(resource, action, params)
+    total_of_pages = get_total_of_pages(
+        resource,
+        action,
+        params,
+        total_of_pages_label,
+        records_label
+    )
+
+    print("Total of pages", total_of_pages)
 
     records_fetched = 0
     for page in range(1, total_of_pages + 1):
@@ -92,7 +124,7 @@ for endpoint in endpoints:
 
         contents = response.get(data_source, [])
 
-        black_list = ['tags', 'recomendacoes', 'homepage', 'fax_ddd', 'bloquear_exclusao', 'produtor_rual', 'enderecoEntrega']
+        black_list = ['tags', 'recomendacoes', 'homepage', 'fax_ddd', 'bloquear_exclusao', 'produtor_rual', 'enderecoEntrega', "documento_exterior", "nif"]
 
         for content in contents:
             for item in black_list:
