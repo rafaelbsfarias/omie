@@ -49,5 +49,14 @@
     "total_of_pages_label": "nTotPaginas",
     "records_label": "nRegistros"
 
+  },
+  {
+    "resources": "geral/contacorrente/",
+    "action": "ListarContasCorrentes",
+    "params": {
+      "pagina": 1,
+      "registros_por_pagina": 100
+    },
+    "data_source": "ListarContasCorrentes"
   }
 ]
