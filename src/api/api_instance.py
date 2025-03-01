@@ -10,8 +10,9 @@ class Session:
             connect=1,
             total=5,
             #define tempo de espera entre as tentativas
-            backoff_factor=0.5,
-            status_forcelist=[429] # 492 too many requests
+            backoff_factor=1,
+            status_forcelist=[429, 500, 502, 503, 504], # 492 too many requests | Família do status 500 (erro servidor)
+            allowed_methods=(['GET', 'POST', 'PUT', 'DELETE'])
         )
         self.adapter = HTTPAdapter(max_retries=self.retry)
         self._session.mount("https://", self.adapter)
@@ -36,6 +37,7 @@ class Api:
         self.verify = True
         self.proxies = proxies
         self.session = Session().get()
+        self.timeout = 30
 
     def get(self) -> Union[requests.Response, None]:
         response = self.session.get(
@@ -43,7 +45,8 @@ class Api:
             headers=self.headers,
             params=self.params,
             verify=self.verify,
-            proxies=self.proxies
+            proxies=self.proxies,
+            timeout=self.timeout
         )
         return response
     
@@ -54,7 +57,8 @@ class Api:
             params=self.params,
             json=self.json,
             verify=self.verify,
-            proxies=self.proxies
+            proxies=self.proxies,
+            timeout=self.timeout
         )
         return response
     
@@ -65,7 +69,8 @@ class Api:
             params=self.params,
             json=self.json,
             verify=self.verify,
-            proxies=self.proxies
+            proxies=self.proxies,
+            timeout=self.timeout
         )
         return response
     
@@ -75,5 +80,6 @@ class Api:
             headers=self.headers,
             params=self.params,
             verify=self.verify,
-            proxies=self.proxies
+            proxies=self.proxies,
+            timeout=self.timeout
         )
