@@ -1,7 +1,9 @@
 import requests
-from typing import Union
+from typing import Union, Callable
 from urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
+from requests.exceptions import RequestException
+from loguru import logger
 
 class Session:
     def __init__(self) -> None:
@@ -83,3 +85,18 @@ class Api:
             proxies=self.proxies,
             timeout=self.timeout
         )
+
+    def request(self, method: Callable) -> Union[dict, str, None]:
+        try:
+            response = method()
+            if 200<= response.status_code < 300:
+                try:
+                    return response.json()
+                except ValueError:
+                    logger.warning(f"Status Code: {response.status_code}\n Success: Response content is not a JSON: {response.text}")
+                    return response.text
+            else:
+                logger.error(f"Status Code: {response.status_code}\n Error: {response.text}")
+                return response.text
+        except RequestException as error:
+            return logger.error(f"Request failed: {error}")
