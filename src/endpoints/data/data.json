@@ -74,6 +74,8 @@
       "dPeriodoInicial": "",
       "dPeriodoFinal": ""
     },
-    "pagination_type": "data_range"
+    "pagination_type": "date_range",
+    "data_source": "listaMovimentos",
+    "depends_on": "contacorrente"
   }
 ]

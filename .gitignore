@@ -1,3 +1,7 @@
 .venv
 output.json
 .env
+config/*
+dags/*
+logs/*
+plugins/*

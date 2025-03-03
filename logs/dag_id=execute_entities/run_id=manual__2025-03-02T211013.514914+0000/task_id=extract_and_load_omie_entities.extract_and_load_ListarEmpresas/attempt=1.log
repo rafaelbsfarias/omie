@@ -1,0 +1,22 @@
+[2025-03-02T21:10:26.048+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2025-03-02T21:10:26.075+0000] {taskinstance.py:2613} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: execute_entities.extract_and_load_omie_entities.extract_and_load_ListarEmpresas manual__2025-03-02T21:10:13.514914+00:00 [queued]>
+[2025-03-02T21:10:26.092+0000] {taskinstance.py:2613} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: execute_entities.extract_and_load_omie_entities.extract_and_load_ListarEmpresas manual__2025-03-02T21:10:13.514914+00:00 [queued]>
+[2025-03-02T21:10:26.093+0000] {taskinstance.py:2866} INFO - Starting attempt 1 of 4
+[2025-03-02T21:10:26.114+0000] {taskinstance.py:2889} INFO - Executing <Task(PythonOperator): extract_and_load_omie_entities.extract_and_load_ListarEmpresas> on 2025-03-02 21:10:13.514914+00:00
+[2025-03-02T21:10:26.122+0000] {warnings.py:112} WARNING - /home/***/.local/lib/python3.12/site-packages/***/task/task_runner/standard_task_runner.py:70: DeprecationWarning: This process (pid=110) is multi-threaded, use of fork() may lead to deadlocks in the child.
+  pid = os.fork()
+
+[2025-03-02T21:10:26.124+0000] {standard_task_runner.py:72} INFO - Started process 111 to run task
+[2025-03-02T21:10:26.124+0000] {standard_task_runner.py:104} INFO - Running: ['***', 'tasks', 'run', 'execute_entities', 'extract_and_load_omie_entities.extract_and_load_ListarEmpresas', 'manual__2025-03-02T21:10:13.514914+00:00', '--job-id', '70', '--raw', '--subdir', 'DAGS_FOLDER/execute_entities.py', '--cfg-path', '/tmp/tmp_ifgh2vg']
+[2025-03-02T21:10:26.126+0000] {standard_task_runner.py:105} INFO - Job 70: Subtask extract_and_load_omie_entities.extract_and_load_ListarEmpresas
+[2025-03-02T21:10:26.195+0000] {task_command.py:467} INFO - Running <TaskInstance: execute_entities.extract_and_load_omie_entities.extract_and_load_ListarEmpresas manual__2025-03-02T21:10:13.514914+00:00 [running]> on host eba33f90d1de
+[2025-03-02T21:10:26.343+0000] {taskinstance.py:3132} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='execute_entities' AIRFLOW_CTX_TASK_ID='extract_and_load_omie_entities.extract_and_load_ListarEmpresas' AIRFLOW_CTX_EXECUTION_DATE='2025-03-02T21:10:13.514914+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2025-03-02T21:10:13.514914+00:00'
+[2025-03-02T21:10:26.345+0000] {taskinstance.py:731} INFO - ::endgroup::
+[2025-03-02T21:10:29.573+0000] {log.py:232} WARNING - 2025-03-02 21:10:29.573 | INFO     | src.controllers.paginations.paginations:per_page:91 - Page 1 fetched. Total of records: 1
+[2025-03-02T21:10:31.629+0000] {log.py:232} WARNING - 2025-03-02 21:10:31.629 | ERROR    | src.db.database:save_into_db:110 - Error saving data into table empresas: Using URI string without sqlalchemy installed.
+[2025-03-02T21:10:31.631+0000] {python.py:240} INFO - Done. Returned value was: None
+[2025-03-02T21:10:31.653+0000] {taskinstance.py:340} INFO - ::group::Post task execution logs
+[2025-03-02T21:10:31.654+0000] {taskinstance.py:352} INFO - Marking task as SUCCESS. dag_id=execute_entities, task_id=extract_and_load_omie_entities.extract_and_load_ListarEmpresas, run_id=manual__2025-03-02T21:10:13.514914+00:00, execution_date=20250302T211013, start_date=20250302T211026, end_date=20250302T211031
+[2025-03-02T21:10:31.733+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 0
+[2025-03-02T21:10:31.771+0000] {taskinstance.py:3895} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2025-03-02T21:10:31.774+0000] {local_task_job_runner.py:245} INFO - ::endgroup::

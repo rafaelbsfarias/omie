@@ -1,9 +1,11 @@
 import pandas as pd
-from config import Settings
-from sqlalchemy import create_engine, text
 from loguru import logger
+from sqlalchemy import create_engine, text
+
+from src.config import Settings
 
 settings = Settings()
+
 
 class Database:
     """
@@ -14,7 +16,7 @@ class Database:
     def __init__(self):
         """
         Initializes the Database instance, establishing a connection to the database.
-        
+
         Attributes:
             engine (sqlalchemy.engine.base.Engine): The SQLAlchemy engine used to connect to the database.
             connection (sqlalchemy.engine.base.Connection): The active connection to the database.
@@ -32,7 +34,7 @@ class Database:
         connection_string = f"postgresql://{settings.DB_USERNAME}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
         engine = create_engine(connection_string)
         return engine
-    
+
     def get_columns_of_db(self, table_name: str):
         """
         Retrieves the column names of a specified table from the database.
@@ -43,11 +45,13 @@ class Database:
         Returns:
             list: A list of column names in the specified table.
         """
-        query = text(f"""
+        query = text(
+            f"""
             SELECT column_name
             FROM information_schema.columns
             WHERE table_name = '{table_name}';
-        """)
+        """
+        )
         result = self.connection.execute(query)
         return [row[0] for row in result]
 
@@ -58,9 +62,9 @@ class Database:
         Args:
             table_name (str): The name of the table to be updated.
             df_columns (list): A list of column names from the DataFrame.
-        
+
         Notes:
-            Only columns that are present in `df_columns` but missing in the table are added. 
+            Only columns that are present in `df_columns` but missing in the table are added.
             All added columns are of type TEXT.
         """
         existing_columns = self.get_columns_of_db(table_name)
@@ -69,12 +73,14 @@ class Database:
             try:
                 for column in missing_columns:
                     transaction = connection.begin()
-                    alter_query = text(f'ALTER TABLE {table_name} ADD COLUMN "{column}" TEXT;')
-                    connection.execute(alter_query)  
-                    transaction.commit() 
-                logger.info(f"Table {table_name} updated successfully")
-            except Exception as e: 
-                logger.error(f"Error updating table {table_name}: {e}") 
+                    alter_query = text(
+                        f'ALTER TABLE {table_name} ADD COLUMN "{column}" TEXT;'
+                    )
+                    connection.execute(alter_query)
+                    transaction.commit()
+                logger.success(f"Table {table_name} updated successfully")
+            except Exception as e:
+                logger.error(f"Error updating table {table_name}: {e}")
 
     def save_into_db(self, page: int, resource: str, content: dict):
         """
@@ -84,20 +90,46 @@ class Database:
             page (int): The page number of the data; used to decide if the table is created or appended to.
             resource (str): A URL or path-like string used to derive the table name.
             content (dict): The data to be saved, structured as a dictionary.
-        
+
         Notes:
             For the first page, the table is replaced with the new data. For subsequent pages, the table is updated with
             any new columns in the content before appending data.
         """
         table_name = resource.split("/")[-2]
-    
-        df = pd.json_normalize(content)
+
+        if isinstance(content, dict):
+            for key, value in content.items():
+                if isinstance(value, list) and value and isinstance(value[0], dict):
+                    parent_keys = [k for k in content.keys() if k != key]
+                    
+                    df = pd.json_normalize(
+                        content,
+                        record_path=key,
+                        meta=parent_keys
+                    )
+        else:
+            df = pd.json_normalize(content)
         try:
+            connection_string = f"postgresql://{settings.DB_USERNAME}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
             if page == 1:
-                df.to_sql(table_name, self.engine, if_exists='replace', index=False)
+                df.to_sql(table_name, connection_string, if_exists="replace", index=False)
             else:
                 self.update_table_structure(table_name, df.columns)
-                df.to_sql(table_name, self.engine, if_exists='append', index=False)
-            logger.info(f"Page {page} saved into table {table_name}")
+                df.to_sql(table_name, connection_string, if_exists="append", index=False)
+            logger.success(f"Page {page} saved into table {table_name}")
         except Exception as e:
             logger.error(f"Error saving data into table {table_name}: {e}")
+
+    def select_from_table(self, table_name: str, distinct_column: str = None):
+        try:
+            if distinct_column:
+                query = text(f'SELECT DISTINCT "{distinct_column}" FROM {table_name}')
+                result = self.connection.execute(query)
+                return [row[0] for row in result]
+            else:
+                query = text(f"SELECT * FROM {table_name}")
+                result = self.connection.execute(query)
+                return [dict(row) for row in result]
+        except Exception as e:
+            logger.error(f"Error selecting data from table {table_name}: {e}")
+            return None
